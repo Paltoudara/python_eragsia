@@ -1,9 +1,7 @@
 import locale
-
-
-
 #parse the files and creates the maps students,courses,grades
 #sos everything is a str for printing make them ints and float
+#done
 def parse_files():
     map_students={}
     map_courses={}
@@ -15,6 +13,7 @@ def parse_files():
     except FileNotFoundError:
         print("file not found")
         exit(1)
+    #requirements for students
     # am->[1000,9999]
     # first_name length>0
     # last_name length>0
@@ -31,11 +30,13 @@ def parse_files():
         last_name=parts[2]
         year_in_university=parts[3]
         try:
+            #keep only those that meet the requirements
             if 1000<=int(am)<=9999 and len(first_name)>0 and len(last_name)>0 and int(year_in_university)>0:
                 map_students[int(am)]=[first_name,last_name,int(year_in_university)]
         except ValueError:
-            print("invalid input")
+            print("invalid input check the files")
             exit(1)
+    #requirements for courses
     #code of subject length>0
     #title length>0
     #semester >0
@@ -52,11 +53,13 @@ def parse_files():
         semester=parts[2]
         ects=parts[3]
         try:
+            #keep only those that meet the requirements
             if len(code)>0 and len(title)>0 and int(semester)>0 and int(ects)>0:
                 map_courses[code]=[title,int(semester),int(ects)]
         except ValueError:
-            print("invalid input")
+            print("invalid input check the files")
             exit(1)
+    #requirements for grades
     #am in [1000,9999]
     #code length>0
     #grade-> [0.0,10.0]
@@ -71,10 +74,11 @@ def parse_files():
         code=parts[1]
         grade=parts[2]
         try:
+            #keep only those that meet the requirements
             if 1000<=int(am)<=9999 and len(code)>0 and 0.0<=float(grade)<=10.0:
                 map_grades[(int(am),code)]=[float(grade)]
         except ValueError:
-            print("invalid input")
+            print("invalid input check the files")
             exit(1)
     file_students.close()
     file_courses.close()
@@ -82,13 +86,16 @@ def parse_files():
 
     return map_students,map_courses,map_grades
 #check if data from the file are valid
+#done
 def validate_data(map_students,map_courses,map_grades):
     #whatever appears in grades it must also appear at the students and courses maps
+    #but whatever appears in students and courses maps is not necessary to be in grades
     for (key1,key2),value in map_grades.items():
         if (key1 not in map_students) or (key2 not in map_courses):
-            print("invalid input")
+            print("invalid input check the files")
             exit(1)
 #menu this is the main part of the system and also where the user gives his choices
+#done
 def menu(map_students,map_courses,map_grades):
     print("Φόρτωση δεδοµένων...")
     print(f"Φόρτωση students.txt: {len(map_students)}")
@@ -113,7 +120,7 @@ def menu(map_students,map_courses,map_grades):
             choice = int(input("Επιλογη: "))
         except ValueError:
             print("invalid input")
-            return
+            continue
         if choice == 1:
             print_all_students(map_students)
         elif choice == 2:
@@ -136,6 +143,7 @@ def menu(map_students,map_courses,map_grades):
             print("Έξοδος από το σύστηµα Mini SIS+... Καλή συνέχεια!")
             return
 #print all students function
+#done
 def print_all_students(map_students):
     # "Greek_Greece.1253" this works in windows
     locale.setlocale(locale.LC_COLLATE, "Greek_Greece.1253")
@@ -148,9 +156,9 @@ def print_all_students(map_students):
     # print everything about every student
     # list_students: am->[first_name,last_name,year_in_university]
     # list students will be something like this
-    # [(1234, ['Γιώργος', 'Αλεξίου', '1']),
-    # (3456, ['Ελένη', 'Κωνσταντίνου', '3']),
-    # (2345, ['Μαρία', 'Πέτρου', '2'])]
+    # [(1234, ['Γιώργος', 'Αλεξίου', 1]),
+    # (3456, ['Ελένη', 'Κωνσταντίνου', 3]),
+    # (2345, ['Μαρία', 'Πέτρου', 2])]
     # so parse it like this
     for key in list_students:
         print(f"{key[0]:<10}", end='')
@@ -164,10 +172,11 @@ def print_all_students(map_students):
     print()
 
 #print all subjects function
+#done
 def print_all_subjects(map_courses):
     print("--- Λίστα µαθηµάτων (ανά εξάµηνο) ---")
     max_semester=-1
-    # find max semetser in order to know where to stop
+    # find max semester in order to know where to stop
     # map_courses: subject_code->[title,semester,ects]
     for key, value in map_courses.items():
         if value[1] > max_semester:
@@ -187,6 +196,7 @@ def print_all_subjects(map_courses):
     input("Πατήστε Enter για συνέχεια...")
     print()
 #find student by am
+#done
 def find_student_by_am(map_students):
     # we expect an int between [1000,9999]
     while True:
@@ -216,6 +226,7 @@ def find_student_by_am(map_students):
     input("Πατήστε Enter για συνέχεια...")
     print()
 #grades of a student function
+#done
 def grades_of_a_student(map_students,map_courses,map_grades):
     # we expect an int between [1000,9999]
     while True:
@@ -228,10 +239,12 @@ def grades_of_a_student(map_students,map_courses,map_grades):
             break
         else:
             print("Ο αριθμός μητρώου πρέπει να είναι ένας θετικός τετραψήγιος")
-    print("--- Αναλυτική βαθµολογία φοιτητή ---")
     # whatever am exists in map_grades exists also in students check validate_data function
     #whatever code of subject exists in grades it also exists in the courses map check validate_data function
     if am in map_students:
+        print()
+        print("--- Αναλυτική βαθµολογία φοιτητή ---")
+        print()
         #the student might not have any grades
         print(f"Φοιτητής: {am} - {map_students[am][0]} {map_students[am][1]} (Έτος: {map_students[am][2]})")
         print("Μάθημα               Εξάμηνο     Βαθμός")
@@ -244,6 +257,7 @@ def grades_of_a_student(map_students,map_courses,map_grades):
                 print(
                     f"{map_courses[key2][0]:<30} {key2:<10} {map_courses[key2][1]:<10} {map_grades[(key1, key2)][0]:<10}")
         #
+        print()
         subject_counter = 0
         how_many_passed = 0
         average = 0.0
@@ -268,6 +282,7 @@ def grades_of_a_student(map_students,map_courses,map_grades):
     print()
 
 #insert a student function
+#done
 def insert_a_student(map_students):
     print("--- Εισαγωγή νέου φοιτητή ---")
     # give am
@@ -322,6 +337,7 @@ def insert_a_student(map_students):
     input("Πατήστε Enter για συνέχεια...")
     print()
 #insert a subject function
+#done
 def insert_a_subject(map_courses):
     print("--- Εισαγωγή νέου μαθήματος ---")
     while True:
@@ -385,6 +401,7 @@ def insert_a_subject(map_courses):
     input("Πατήστε Enter για συνέχεια...")
     print()
 #insert a grade function
+#done
 def insert_a_grade(map_students,map_courses,map_grades):
     print("--- Εισαγωγή νέας βαθµολογίας ---")
     while True:
@@ -440,7 +457,10 @@ def insert_a_grade(map_students,map_courses,map_grades):
     input("Πατήστε Enter για συνέχεια...")
     print()
 #stats_of_a_subject function
+#done
 def stats_of_a_subject(map_courses,map_grades):
+    #map_courses code->[title,semester,ects]
+    #map_grades (am,code)->[grade]
     print("--- Στατιστικά µαθήµατος ---")
     while True:
         code=input("Δώσε τον κωδικό του μαθήματος: ")
@@ -468,12 +488,13 @@ def stats_of_a_subject(map_courses,map_grades):
         print("Μέσος όρος: 0.0")
         print("Ελάχιστος βαθµός: 0.0")
         print("Μέγιστος βαθµός: 0.0")
-    print(f"Περασμένοι φοιτητές (βαθμός >=5): {len([x for x in grades if x >= 5])}")
+    print(f"Περασμένοι φοιτητές (βαθμός >=5): {len([x for x in grades if x >= 5.0])}")
 
     print()
     input("Πατήστε Enter για συνέχεια...")
     print()
-#create_full_report_file done
+#create_full_report_file
+#done
 def create_full_report_file(map_students,map_courses,map_grades):
     file_report=open("full_report.txt","w",encoding="utf-8")
     print("--- Δηµιουργία πλήρους αναφοράς ---")
@@ -524,4 +545,3 @@ def create_full_report_file(map_students,map_courses,map_grades):
     print()
     input("Πατήστε Enter για συνέχεια...")
     print()
-
